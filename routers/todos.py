@@ -2,9 +2,10 @@ from fastapi import Depends, HTTPException, Path, APIRouter
 from typing import Annotated
 from pydantic import BaseModel, Field
 from starlette import status
-from database import SessionLocal
-from models import Todos
-from routers.auth import get_current_user
+from ..database import SessionLocal
+from ..models import Todos
+from ..routers.auth import get_current_user
+
 
 router = APIRouter()
 

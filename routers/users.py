@@ -4,9 +4,9 @@ from typing import Annotated
 from passlib.context import CryptContext
 from pydantic import BaseModel, Field
 from starlette import status
-from database import SessionLocal
-from models import Users
-from routers.auth import get_current_user
+from ..database import SessionLocal
+from ..models import Users
+from ..routers.auth import get_current_user
 
 router = APIRouter(
     prefix='/user',
@@ -45,7 +45,7 @@ async def get_user(user: user_dependency,
     return user_model
 
 
-@router.post('/password', status_code=status.HTTP_204_NO_CONTENT)
+@router.put('/password', status_code=status.HTTP_204_NO_CONTENT)
 async def change_password(user: user_dependency,
                           user_verification: UserVerification,
                           db: db_dependency):
@@ -61,3 +61,20 @@ async def change_password(user: user_dependency,
     user_model.hashed_password = bcrypt_context.hash(user_verification.new_password)
     db.add(user_model)
     db.commit()
+
+
+@router.put('/phonenumber/{phone_number}', status_code=status.HTTP_204_NO_CONTENT)
+async def change_phone_number(user: user_dependency,
+                              phone_number: str,
+                              db: db_dependency):
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail='User not found')
+
+    user_model = db.query(Users).filter(Users.id == user.get('id')).first()
+
+    user_model.phone_number = phone_number
+    db.add(user_model)
+    db.commit()
+
